@@ -10,13 +10,12 @@ import (
 	"path"
 	"time"
 
-	"github.com/layer5io/meshery/handlers"
-	"github.com/layer5io/meshery/helpers"
-	"github.com/layer5io/meshery/internal/graphql"
 	"github.com/layer5io/meshery/internal/store"
-	"github.com/layer5io/meshery/models"
-	"github.com/layer5io/meshery/models/oam"
-	"github.com/layer5io/meshery/router"
+	"github.com/layer5io/meshery/pkg/handlers"
+	"github.com/layer5io/meshery/pkg/helpers"
+	"github.com/layer5io/meshery/pkg/models"
+	"github.com/layer5io/meshery/pkg/models/oam"
+	"github.com/layer5io/meshery/pkg/router"
 	"github.com/layer5io/meshkit/database"
 	"github.com/layer5io/meshkit/logger"
 	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
@@ -152,7 +151,6 @@ func main() {
 	}
 
 	kubeclient := mesherykube.Client{}
-	meshsyncCh := make(chan struct{})
 
 	err = dbHandler.AutoMigrate(
 		meshsyncmodel.KeyValue{},
@@ -175,15 +173,6 @@ func main() {
 		MesheryPatternPersister:      &models.MesheryPatternPersister{DB: &dbHandler},
 		MesheryFilterPersister:       &models.MesheryFilterPersister{DB: &dbHandler},
 		GenericPersister:             dbHandler,
-		GraphqlHandler: graphql.New(graphql.Options{
-			Logger:          log,
-			DBHandler:       &dbHandler,
-			KubeClient:      &kubeclient,
-			MeshSyncChannel: meshsyncCh,
-		}),
-		GraphqlPlayground: graphql.NewPlayground(graphql.Options{
-			URL: "/api/system/graphql/query",
-		}),
 	}
 	lProv.Initialize()
 	provs[lProv.Name()] = lProv
@@ -211,15 +200,6 @@ func main() {
 			ProviderVersion:            "v0.3.14",
 			SmiResultPersister:         smiResultPersister,
 			GenericPersister:           dbHandler,
-			GraphqlHandler: graphql.New(graphql.Options{
-				Logger:          log,
-				DBHandler:       &dbHandler,
-				KubeClient:      &kubeclient,
-				MeshSyncChannel: meshsyncCh,
-			}),
-			GraphqlPlayground: graphql.NewPlayground(graphql.Options{
-				URL: "/api/system/graphql/query",
-			}),
 		}
 
 		cp.Initialize()
@@ -246,7 +226,7 @@ func main() {
 
 		PrometheusClient:         models.NewPrometheusClient(),
 		PrometheusClientForQuery: models.NewPrometheusClientWithHTTPClient(&http.Client{Timeout: time.Second}),
-	}, &kubeclient, meshsyncCh, log)
+	}, &kubeclient, log)
 
 	port := viper.GetInt("PORT")
 	r := router.NewRouter(ctx, h, port)
