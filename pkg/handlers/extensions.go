@@ -5,6 +5,7 @@ import (
 	"path"
 	"plugin"
 
+	"github.com/layer5io/meshery/internal/channels"
 	"github.com/layer5io/meshery/pkg/models"
 )
 
@@ -40,10 +41,11 @@ func (h *Handler) LoadExtensionFromPackage(w http.ResponseWriter, req *http.Requ
 	runFunction := symRun.(func(*models.ExtensionInput) (*models.ExtensionOutput, error))
 
 	output, err := runFunction(&models.ExtensionInput{
-		DBHandler:       provider.GetGenericPersister(),
-		MeshSyncChannel: h.meshsyncChannel,
-		BrokerChannel:   h.brokerChannel,
-		Logger:          h.log,
+		DBHandler:              provider.GetGenericPersister(),
+		MeshSyncChannel:        h.config.Channels[channels.MeshSync].(channels.MeshSyncChannel),
+		BrokerPublishChannel:   h.config.Channels[channels.BrokerPublish].(channels.BrokerPublishChannel),
+		BrokerSubscribeChannel: h.config.Channels[channels.BrokerSubscribe].(channels.BrokerSubscribeChannel),
+		Logger:                 h.log,
 	})
 	if err != nil {
 		return err

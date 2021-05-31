@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gofrs/uuid"
-	"github.com/layer5io/meshkit/broker"
+	"github.com/layer5io/meshery/internal/channels"
 	"github.com/layer5io/meshkit/database"
 	"github.com/layer5io/meshkit/logger"
 	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
@@ -14,10 +14,11 @@ import (
 
 // ExtensionInput - input for a plugin
 type ExtensionInput struct {
-	DBHandler       *database.Handler
-	MeshSyncChannel chan struct{}
-	BrokerChannel   chan *broker.Message
-	Logger          logger.Handler
+	DBHandler              *database.Handler
+	MeshSyncChannel        channels.MeshSyncChannel
+	BrokerPublishChannel   channels.BrokerPublishChannel
+	BrokerSubscribeChannel channels.BrokerSubscribeChannel
+	Logger                 logger.Handler
 }
 
 // Router

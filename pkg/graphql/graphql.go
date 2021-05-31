@@ -21,7 +21,6 @@ type Options struct {
 	DBHandler     *database.Handler
 	Logger        logger.Handler
 	KubeClient    *mesherykube.Client
-	Channels      map[string]channels.GenericChannel
 	HandlerConfig *models.HandlerConfig
 	URL           string
 }
@@ -32,9 +31,9 @@ func New(opts Options) http.Handler {
 		Log:                    opts.Logger,
 		DBHandler:              opts.DBHandler,
 		KubeClient:             opts.KubeClient,
-		BrokerPublishChannel:   opts.Channels[channels.BrokerPublish],
-		BrokerSubscribeChannel: opts.Channels[channels.BrokerSubscribe],
-		MeshSyncChannel:        opts.Channels[channels.MeshSync],
+		MeshSyncChannel:        opts.HandlerConfig.Channels[channels.MeshSync].(channels.MeshSyncChannel),
+		BrokerPublishChannel:   opts.HandlerConfig.Channels[channels.BrokerPublish].(channels.BrokerPublishChannel),
+		BrokerSubscribeChannel: opts.HandlerConfig.Channels[channels.BrokerSubscribe].(channels.BrokerSubscribeChannel),
 	}
 
 	srv := handler.New(generated.NewExecutableSchema(generated.Config{

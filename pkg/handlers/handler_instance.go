@@ -39,12 +39,10 @@ func NewHandlerInstance(
 		kubeclient: client,
 		log:        logger,
 		gqlHandler: graphql.New(graphql.Options{
-			Logger:          logger,
-			DBHandler:       handlerConfig.Providers["None"].GetGenericPersister(),
-			KubeClient:      client,
-			MeshSyncChannel: handlerConfig.Channels[channels.MeshSync],
-			BrokerChannel:   brokerCh,
-			HandlerConfig:   handlerConfig,
+			Logger:        logger,
+			DBHandler:     handlerConfig.Providers["None"].GetGenericPersister(),
+			KubeClient:    client,
+			HandlerConfig: handlerConfig,
 		}),
 		gqlPlayground: graphql.NewPlayground(graphql.Options{
 			URL: "/api/system/graphql/query",

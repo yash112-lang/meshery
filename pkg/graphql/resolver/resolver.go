@@ -1,6 +1,7 @@
 package resolver
 
 import (
+	"github.com/layer5io/meshery/internal/channels"
 	"github.com/layer5io/meshery/pkg/graphql/model"
 	"github.com/layer5io/meshkit/broker"
 	"github.com/layer5io/meshkit/database"
@@ -16,9 +17,9 @@ type Resolver struct {
 	Log                    logger.Handler
 	DBHandler              *database.Handler
 	KubeClient             *mesherykube.Client
-	MeshSyncChannel        chan struct{}
-	BrokerPublishChannel   chan *broker.Message
-	BrokerSubscribeChannel chan *broker.Message
+	MeshSyncChannel        channels.MeshSyncChannel
+	BrokerPublishChannel   channels.BrokerPublishChannel
+	BrokerSubscribeChannel channels.BrokerSubscribeChannel
 
 	brokerConn          broker.Handler
 	operatorChannel     chan *model.OperatorStatus
