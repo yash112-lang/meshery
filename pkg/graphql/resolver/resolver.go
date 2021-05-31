@@ -1,7 +1,7 @@
 package resolver
 
 import (
-	"github.com/layer5io/meshery/internal/channels"
+	"github.com/layer5io/meshery/pkg/channels"
 	"github.com/layer5io/meshery/pkg/graphql/model"
 	"github.com/layer5io/meshkit/broker"
 	"github.com/layer5io/meshkit/database"

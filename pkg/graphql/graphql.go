@@ -8,7 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/websocket"
-	"github.com/layer5io/meshery/internal/channels"
+	"github.com/layer5io/meshery/pkg/channels"
 	"github.com/layer5io/meshery/pkg/graphql/generated"
 	"github.com/layer5io/meshery/pkg/graphql/resolver"
 	"github.com/layer5io/meshery/pkg/models"

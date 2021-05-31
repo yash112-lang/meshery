@@ -5,7 +5,7 @@ import (
 
 	"time"
 
-	"github.com/layer5io/meshery/internal/channels"
+	"github.com/layer5io/meshery/pkg/channels"
 	"github.com/vmihailenco/taskq/v3"
 )
 

@@ -3,23 +3,13 @@ package channels
 import "github.com/layer5io/meshkit/broker"
 
 var (
-	MeshSync        = "meshsync"
 	BrokerPublish   = "broker-publish"
 	BrokerSubscribe = "broker-subscribe"
 )
 
-type GenericChannel interface {
-	Stop()
-}
-
-func NewMeshSyncChannel() MeshSyncChannel {
-	return make(chan struct{})
-}
-
-type MeshSyncChannel chan struct{}
-
-func (ch MeshSyncChannel) Stop() {
-	<-ch
+type BrokerPublishPayload struct {
+	Subject string
+	Data    *broker.Message
 }
 
 func NewBrokerSubscribeChannel() BrokerSubscribeChannel {
@@ -33,10 +23,10 @@ func (ch BrokerSubscribeChannel) Stop() {
 }
 
 func NewBrokerPublishChannel() BrokerPublishChannel {
-	return make(chan *broker.Message)
+	return make(chan *BrokerPublishPayload)
 }
 
-type BrokerPublishChannel chan *broker.Message
+type BrokerPublishChannel chan *BrokerPublishPayload
 
 func (ch BrokerPublishChannel) Stop() {
 	<-ch

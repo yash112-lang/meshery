@@ -4,7 +4,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/layer5io/meshery/internal/channels"
+	"github.com/layer5io/meshery/pkg/channels"
 	"github.com/layer5io/meshery/pkg/graphql"
 	"github.com/layer5io/meshery/pkg/models"
 	"github.com/layer5io/meshkit/logger"

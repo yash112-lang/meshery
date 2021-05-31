@@ -46,8 +46,9 @@ func (r *Resolver) listernToEvents() {
 				//case broker.LogStreamObject:
 				//	go r.processLogs(msg.Object)
 			}
-		case _ = <-r.BrokerPublishChannel:
+		case msg := <-r.BrokerPublishChannel:
 			// request
+			r.Log.Info("Message: ", msg)
 		}
 	}
 }
