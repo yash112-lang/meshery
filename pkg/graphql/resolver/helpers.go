@@ -43,8 +43,6 @@ func (r *Resolver) listernToEvents() {
 			switch msg.ObjectType {
 			case broker.MeshSync:
 				go r.persistData(*msg, &wg)
-				//case broker.LogStreamObject:
-				//	go r.processLogs(msg.Object)
 			}
 		case msg := <-r.BrokerPublishChannel:
 			if r.brokerConn == nil {
