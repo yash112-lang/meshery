@@ -17,13 +17,17 @@ const (
 	ErrMesheryClientCode            = "test_code"
 	ErrSubscribeChannelCode         = "test_code"
 	ErrNoMeshSyncCode               = "test_code"
+	ErrPublishRequestCode           = "test_code"
+	ErrEmptyHandlerCode             = "test_code"
+	ErrBrokerEmptyHandlerCode       = "test_code"
 )
 
 var (
-	ErrNilClient      = errors.NewDefault(ErrNilClientCode, "Kubernetes client not initialized")
-	ErrInvalidRequest = errors.NewDefault(ErrInvalidRequestCode, "Invalid query, please check syntax")
-	ErrNoMeshSync     = errors.NewDefault(ErrNoMeshSyncCode, "MeshSync disabled")
-	ErrEmptyHandler   = errors.NewDefault(ErrNoMeshSyncCode, "Database handler not initialized")
+	ErrNilClient          = errors.NewDefault(ErrNilClientCode, "Kubernetes client not initialized")
+	ErrInvalidRequest     = errors.NewDefault(ErrInvalidRequestCode, "Invalid query, please check syntax")
+	ErrNoMeshSync         = errors.NewDefault(ErrNoMeshSyncCode, "MeshSync disabled")
+	ErrEmptyHandler       = errors.NewDefault(ErrEmptyHandlerCode, "Database handler not initialized")
+	ErrBrokerEmptyHandler = errors.NewDefault(ErrBrokerEmptyHandlerCode, "Broker handler not initialized")
 )
 
 func ErrCreateData(err error) error {
@@ -60,6 +64,10 @@ func ErrControlPlaneSubscription(err error) error {
 
 func ErrSubscribeChannel(err error) error {
 	return errors.NewDefault(ErrSubscribeChannelCode, "Unable to subscribe to channel", err.Error())
+}
+
+func ErrPublishRequest(err error) error {
+	return errors.NewDefault(ErrPublishRequestCode, "Unable to publish request to broker", err.Error())
 }
 
 func ErrMesheryClient(err error) error {

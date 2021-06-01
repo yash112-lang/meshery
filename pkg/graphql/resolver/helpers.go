@@ -47,8 +47,13 @@ func (r *Resolver) listernToEvents() {
 				//	go r.processLogs(msg.Object)
 			}
 		case msg := <-r.BrokerPublishChannel:
-			// request
-			r.Log.Info("Message: ", msg)
+			if r.brokerConn == nil {
+				r.Log.Error(ErrBrokerEmptyHandler)
+			}
+			err := r.brokerConn.Publish(msg.Subject, msg.Data)
+			if err != nil {
+				r.Log.Error(ErrPublishRequest(err))
+			}
 		}
 	}
 }
