@@ -272,51 +272,6 @@
       "probable_cause": "",
       "suggested_remediation": ""
     },
-    "2017": {
-      "name": "ErrStreamEventsCode",
-      "code": "2017",
-      "severity": "Alert",
-      "long_description": "",
-      "short_description": "There was an error connecting to the backend to get events",
-      "probable_cause": "",
-      "suggested_remediation": ""
-    },
-    "2018": {
-      "name": "ErrStreamClientCode",
-      "code": "2018",
-      "severity": "Alert",
-      "long_description": "",
-      "short_description": "Event streaming ended",
-      "probable_cause": "",
-      "suggested_remediation": ""
-    },
-    "2019": {
-      "name": "ErrUnmarshalEventCode",
-      "code": "2019",
-      "severity": "",
-      "long_description": "",
-      "short_description": "",
-      "probable_cause": "",
-      "suggested_remediation": ""
-    },
-    "2020": {
-      "name": "ErrPublishSmiResultsCode",
-      "code": "2020",
-      "severity": "Alert",
-      "long_description": "",
-      "short_description": "Error publishing SMI results",
-      "probable_cause": "",
-      "suggested_remediation": ""
-    },
-    "2021": {
-      "name": "ErrMarshalEventCode",
-      "code": "2021",
-      "severity": "",
-      "long_description": "",
-      "short_description": "",
-      "probable_cause": "",
-      "suggested_remediation": ""
-    },
     "2022": {
       "name": "ErrPluginOpenCode",
       "code": "2022",

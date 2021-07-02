@@ -41,6 +41,7 @@ const (
 	ErrLoadConfigCode        = "2019"
 	ErrOpenFileCode          = "2020"
 	ErrKubeVersionCode       = "2021"
+	ErrReadContentCode       = "test"
 )
 
 var (
@@ -161,4 +162,8 @@ func ErrOpenFile(file string) error {
 
 func ErrKubeVersion(err error) error {
 	return errors.New(ErrKubeVersionCode, errors.Alert, []string{"unable to get kubernetes version"}, []string{err.Error()}, []string{}, []string{})
+}
+
+func ErrReadContent(err error, msg string) error {
+	return errors.New(ErrReadContentCode, errors.Alert, []string{"unable to read content: ", msg}, []string{err.Error()}, []string{}, []string{})
 }

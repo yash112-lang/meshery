@@ -36,10 +36,8 @@ func (h *Handler) LoadTestUsingSMPHandler(w http.ResponseWriter, req *http.Reque
 	}()
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		msg := "unable to read request body"
-		err = errors.Wrapf(err, msg)
-		logrus.Error(err)
-		http.Error(w, msg, http.StatusInternalServerError)
+		logrus.Error(ErrReadContent(err, "load-test-request"))
+		http.Error(w, ErrReadContent(err, "load-test-request").Error(), http.StatusInternalServerError)
 		return
 	}
 	jsonBody, err := yamlj.YAMLToJSON(body)

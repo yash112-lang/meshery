@@ -2,21 +2,34 @@
   "min_code": 1000,
   "max_code": 3000,
   "duplicate_codes": {
-    "test": [
-      "ErrFormFileCode",
-      "ErrReadConfigCode",
-      "ErrLoadConfigCode",
-      "ErrOpenFileCode",
+    "2017": [
+      "ErrStreamEventsCode",
+      "ErrFormFileCode"
+    ],
+    "2018": [
+      "ErrStreamClientCode",
+      "ErrReadConfigCode"
+    ],
+    "2019": [
+      "ErrUnmarshalEventCode",
+      "ErrLoadConfigCode"
+    ],
+    "2020": [
+      "ErrPublishSmiResultsCode",
+      "ErrOpenFileCode"
+    ],
+    "2021": [
+      "ErrMarshalEventCode",
       "ErrKubeVersionCode"
     ]
   },
   "duplicate_names": [
-    "ErrGrafanaConfigCode",
     "ErrGrafanaBoardsCode",
-    "ErrNoMeshSyncCode",
-    "ErrMesheryClientCode",
     "ErrCreateDataCode",
-    "ErrNilClientCode"
+    "ErrNoMeshSyncCode",
+    "ErrGrafanaConfigCode",
+    "ErrNilClientCode",
+    "ErrMesheryClientCode"
   ],
   "call_expr_codes": [],
   "int_codes": [
