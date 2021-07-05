@@ -42,6 +42,10 @@ const (
 	ErrOpenFileCode          = "2020"
 	ErrKubeVersionCode       = "2021"
 	ErrReadContentCode       = "test"
+	ErrYAMLToJSONCode        = "test"
+	ErrEmptyTestNameCode     = "test"
+	ErrParseDurationCode     = "test"
+	ErrParseURLCode          = "test"
 )
 
 var (
@@ -50,6 +54,7 @@ var (
 	ErrPrometheusConfig = errors.New(ErrGrafanaConfigCode, errors.Alert, []string{"Prometheus endpoint not configured"}, []string{"Cannot find valid Prometheus endpoint in user pref"}, []string{}, []string{"Setup your Prometheus Endpoint via the settings dashboard"})
 	ErrGrafanaConfig    = errors.New(ErrGrafanaConfigCode, errors.Alert, []string{"Grafana endpoint not configured"}, []string{"Cannot find valid grafana endpoint in user pref"}, []string{}, []string{"Setup your Grafana Endpoint via the settings dashboard"})
 	ErrStaticBoards     = errors.New(ErrStaticBoardsCode, errors.Alert, []string{"unable to get static board"}, []string{"unable to get static board"}, []string{}, []string{})
+	ErrEmptyTestName    = errors.New(ErrEmptyTestNameCode, errors.Alert, []string{"test name provided is empty"}, []string{}, []string{}, []string{})
 )
 
 func ErrPrometheusScan(err error) error {
@@ -166,4 +171,16 @@ func ErrKubeVersion(err error) error {
 
 func ErrReadContent(err error, msg string) error {
 	return errors.New(ErrReadContentCode, errors.Alert, []string{"unable to read content: ", msg}, []string{err.Error()}, []string{}, []string{})
+}
+
+func ErrYAMLToJSON(err error) error {
+	return errors.New(ErrYAMLToJSONCode, errors.Alert, []string{"unable to convert yaml content to json"}, []string{err.Error()}, []string{}, []string{})
+}
+
+func ErrParseDuration(err error) error {
+	return errors.New(ErrParseDurationCode, errors.Alert, []string{"unable to parse duration"}, []string{err.Error()}, []string{}, []string{"please refer to: https://docs.meshery.io/guides/mesheryctl#performance-management"})
+}
+
+func ErrParseURL(err error) error {
+	return errors.New(ErrParseURLCode, errors.Alert, []string{"unable to parse URL"}, []string{err.Error()}, []string{}, []string{"please refer to: https://docs.meshery.io/guides/mesheryctl#performance-management"})
 }

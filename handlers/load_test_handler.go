@@ -42,26 +42,22 @@ func (h *Handler) LoadTestUsingSMPHandler(w http.ResponseWriter, req *http.Reque
 	}
 	jsonBody, err := yamlj.YAMLToJSON(body)
 	if err != nil {
-		msg := "unable to convert YAML to JSON"
-		err = errors.Wrapf(err, msg)
-		logrus.Error(err)
-		http.Error(w, msg, http.StatusInternalServerError)
+		logrus.Error(ErrYAMLToJSON(err))
+		http.Error(w, ErrYAMLToJSON(err).Error(), http.StatusInternalServerError)
 		return
 	}
 	perfTest := &SMP.PerformanceTestConfig{}
 	if err := protojson.Unmarshal(jsonBody, perfTest); err != nil {
-		msg := "unable to parse the provided input"
-		err = errors.Wrapf(err, msg)
-		logrus.Error(err)
-		http.Error(w, msg, http.StatusBadRequest)
+		logrus.Error(ErrUnmarshal(err, "smp-test-config"))
+		http.Error(w, ErrUnmarshal(err, "smp-test-config").Error(), http.StatusBadRequest)
 		return
 	}
 
 	// testName - should be loaded from the file and updated with a random string appended to the end of the name
 	testName := perfTest.Name
 	if testName == "" {
-		logrus.Errorf("Error: name field is blank")
-		http.Error(w, "Provide a name for the test.", http.StatusForbidden)
+		logrus.Error(ErrEmptyTestName)
+		http.Error(w, ErrEmptyTestName.Error(), http.StatusForbidden)
 		return
 	}
 	// meshName := q.Get("mesh")
@@ -71,10 +67,8 @@ func (h *Handler) LoadTestUsingSMPHandler(w http.ResponseWriter, req *http.Reque
 
 	testDuration, err := time.ParseDuration(perfTest.Duration)
 	if err != nil {
-		msg := "error parsing test duration, please refer to: https://docs.meshery.io/guides/mesheryctl#performance-management"
-		err = errors.Wrapf(err, msg)
-		logrus.Error(err)
-		http.Error(w, msg, http.StatusBadRequest)
+		logrus.Error(ErrParseDuration(err))
+		http.Error(w, ErrParseDuration(err).Error(), http.StatusBadRequest)
 		return
 	}
 	loadTestOptions.Duration = testDuration
@@ -96,8 +90,8 @@ func (h *Handler) LoadTestUsingSMPHandler(w http.ResponseWriter, req *http.Reque
 
 	ltURL, err := url.Parse(loadTestOptions.URL)
 	if err != nil || !ltURL.IsAbs() {
-		logrus.Errorf("unable to parse the provided load test url: %v", err)
-		http.Error(w, "invalid load test URL", http.StatusBadRequest)
+		logrus.Error(ErrParseURL(err))
+		http.Error(w, ErrParseURL(err).Error(), http.StatusBadRequest)
 		return
 	}
 	loadTestOptions.Name = testName
