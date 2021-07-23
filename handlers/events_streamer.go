@@ -14,7 +14,7 @@ import (
 
 	"github.com/layer5io/meshery/meshes"
 	"github.com/layer5io/meshery/models"
-	"github.com/sirupsen/logrus"
+	"github.com/layer5io/meshkit/logger"
 )
 
 var (
@@ -28,7 +28,7 @@ func (h *Handler) EventStreamHandler(w http.ResponseWriter, req *http.Request, p
 	// 	return
 	// }
 
-	log := logrus.WithField("file", "events_streamer")
+	//log := logrus.WithField("file", "events_streamer")
 	client := "ui"
 	if req.URL.Query().Get("client") != "" {
 		client = req.URL.Query().Get("client")
@@ -42,7 +42,7 @@ func (h *Handler) EventStreamHandler(w http.ResponseWriter, req *http.Request, p
 	flusherMap[client] = flusher
 
 	if !ok {
-		log.Error("Event streaming not supported.")
+		h.log.Error(ErrStreamEvents(nil))
 		http.Error(w, "Event streaming is not supported at the moment.", http.StatusInternalServerError)
 		return
 	}
@@ -65,33 +65,33 @@ func (h *Handler) EventStreamHandler(w http.ResponseWriter, req *http.Request, p
 
 	go func() {
 		for mClient := range newAdaptersChan {
-			log.Debug("received a new mesh client, listening for events")
+			h.log.Debug("received a new mesh client, listening for events")
 			go func(mClient *meshes.MeshClient) {
-				listenForAdapterEvents(req.Context(), mClient, respChan, log, p)
+				listenForAdapterEvents(req.Context(), mClient, respChan, h.log, p)
 				_ = mClient.Close()
 			}(mClient)
 		}
 
-		log.Debug("new adapters channel closed")
+		h.log.Debug("new adapters channel closed")
 	}()
 
 	go func(flusher http.Flusher) {
 		for data := range respChan {
-			log.Debug("received new data on response channel")
+			h.log.Debug("received new data on response channel")
 			_, _ = fmt.Fprintf(w, "data: %s\n\n", data)
 			if flusher != nil {
 				flusher.Flush()
-				log.Debugf("Flushed the messages on the wire...")
+				h.log.Debug("Flushed the messages on the wire...")
 			}
 		}
-		log.Debug("response channel closed")
+		h.log.Debug("response channel closed")
 	}(flusherMap[client])
 
 STOP:
 	for {
 		select {
 		case <-notify.Done():
-			log.Debugf("received signal to close connection and channels")
+			h.log.Debug("received signal to close connection and channels")
 			close(newAdaptersChan)
 			close(respChan)
 			break STOP
@@ -102,7 +102,7 @@ STOP:
 			}
 
 			if prefObj.K8SConfig == nil || !prefObj.K8SConfig.InClusterConfig && (prefObj.K8SConfig.Config == nil || len(prefObj.K8SConfig.Config) == 0) {
-				log.Debug("No valid Kubernetes config found.") // switching from Error to Debug to prevent it from filling up the logs
+				h.log.Debug("No valid Kubernetes config found.") // switching from Error to Debug to prevent it from filling up the logs
 				// http.Error(w, `No valid Kubernetes config found.`, http.StatusBadRequest)
 				// return
 				localMeshAdaptersLock.Lock()
@@ -114,7 +114,7 @@ STOP:
 			} else {
 				adaptersLen := len(meshAdapters)
 				if adaptersLen == 0 {
-					log.Debug("No valid mesh adapter(s) found.") // switching from Error to Debug to prevent it from filling up the logs
+					h.log.Debug("No valid mesh adapter(s) found.") // switching from Error to Debug to prevent it from filling up the logs
 					// http.Error(w, `No valid mesh adapter(s) found.`, http.StatusBadRequest)
 					// return
 					localMeshAdaptersLock.Lock()
@@ -151,11 +151,11 @@ STOP:
 		}
 		time.Sleep(5 * time.Second)
 	}
-	defer log.Debug("events handler closed")
+	defer h.log.Debug("events handler closed")
 }
 
-func listenForAdapterEvents(ctx context.Context, mClient *meshes.MeshClient, respChan chan []byte, log *logrus.Entry, p models.Provider) {
-	log.Debugf("Received a stream client...")
+func listenForAdapterEvents(ctx context.Context, mClient *meshes.MeshClient, respChan chan []byte, log logger.Handler, p models.Provider) {
+	log.Debug("Received a stream client...")
 
 	streamClient, err := mClient.MClient.StreamEvents(ctx, &meshes.EventsRequest{})
 	if err != nil {
@@ -166,7 +166,7 @@ func listenForAdapterEvents(ctx context.Context, mClient *meshes.MeshClient, res
 	}
 
 	for {
-		log.Debugf("Waiting to receive events.")
+		log.Debug("Waiting to receive events.")
 		event, err := streamClient.Recv()
 		if err != nil {
 			if err == io.EOF {
@@ -176,13 +176,13 @@ func listenForAdapterEvents(ctx context.Context, mClient *meshes.MeshClient, res
 			log.Error(ErrStreamClient(err))
 			return
 		}
-		// log.Debugf("received an event: %+#v", event)
-		log.Debugf("Received an event.")
+		// h.log.Debug("received an event: %+#v", event)
+		log.Debug("Received an event.")
 		if strings.Contains(event.Summary, "Smi conformance test") {
 			result := &models.SmiResult{}
 			err := json.Unmarshal([]byte(event.Details), result)
 			if err != nil {
-				log.Error(ErrUnmarshal(err, "event"))
+				log.Error(ErrUnmarshal(err, "smi-result"))
 				return
 			}
 
@@ -196,7 +196,7 @@ func listenForAdapterEvents(ctx context.Context, mClient *meshes.MeshClient, res
 
 		data, err := json.Marshal(event)
 		if err != nil {
-			log.Error(ErrMarshal(err, "event"))
+			log.Error(ErrMarshal(err, "smi-result"))
 			return
 		}
 		respChan <- data

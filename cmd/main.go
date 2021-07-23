@@ -24,8 +24,6 @@ import (
 	meshsyncmodel "github.com/layer5io/meshsync/pkg/model"
 	"github.com/spf13/viper"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/vmihailenco/taskq/v3"
 	"github.com/vmihailenco/taskq/v3/memqueue"
 )
@@ -52,13 +50,13 @@ func main() {
 		Format: logger.SyslogLogFormat,
 	})
 	if err != nil {
-		logrus.Error(err)
+		fmt.Println(fmt.Errorf("logger init failed, %s", err.Error()))
 		os.Exit(1)
 	}
 
 	// operatingSystem, err := exec.Command("uname", "-s").Output()
 	// if err != nil {
-	// 	logrus.Error(err)
+	// 	log.Error(err)
 	// }
 
 	ctx := context.Background()
@@ -76,37 +74,36 @@ func main() {
 
 	// Register local OAM traits and workloads
 	if err := pattern.RegisterMesheryOAMTraits(); err != nil {
-		logrus.Error(err)
+		log.Error(err)
 	}
 	if err := pattern.RegisterMesheryOAMWorkloads(); err != nil {
-		logrus.Error(err)
+		log.Error(err)
 	}
-	logrus.Info("Registered Meshery local Capabilities")
+	log.Info("Registered Meshery local Capabilities")
 
 	// Get the channel
-	logrus.Info("Meshery server current channel: ", releasechannel)
+	log.Info("Meshery server current channel: ", releasechannel)
 
 	home, err := os.UserHomeDir()
 	if viper.GetString("USER_DATA_FOLDER") == "" {
 		if err != nil {
-			logrus.Fatalf("unable to retrieve the user's home directory: %v", err)
+			log.Error(err)
 		}
 		viper.SetDefault("USER_DATA_FOLDER", path.Join(home, ".meshery", "config"))
 	}
-	logrus.Infof("Using '%s' to store user data", viper.GetString("USER_DATA_FOLDER"))
+	log.Debug("Using " + viper.GetString("USER_DATA_FOLDER") + " to store user data")
 
 	if viper.GetString("KUBECONFIG_FOLDER") == "" {
 		if err != nil {
-			logrus.Fatalf("unable to retrieve the user's home directory: %v", err)
+			log.Error(err)
 		}
 		viper.SetDefault("KUBECONFIG_FOLDER", path.Join(home, ".kube"))
 	}
-	logrus.Infof("Using '%s' as the folder to look for kubeconfig file", viper.GetString("KUBECONFIG_FOLDER"))
+	log.Debug("Using " + viper.GetString("KUBECONFIG_FOLDER") + " as the folder to look for kubeconfig file")
 
-	if viper.GetBool("DEBUG") {
-		logrus.SetLevel(logrus.DebugLevel)
-	}
-	logrus.Infof("Log level: %s", logrus.GetLevel())
+	//if viper.GetBool("DEBUG") {
+	//	log.SetLevel(log.DebugLevel)
+	//}
 
 	adapterURLs := viper.GetStringSlice("ADAPTER_URLS")
 
@@ -127,19 +124,19 @@ func main() {
 
 	preferencePersister, err := models.NewMapPreferencePersister()
 	if err != nil {
-		logrus.Fatal(err)
+		log.Error(err)
 	}
 	defer preferencePersister.ClosePersister()
 
 	smiResultPersister, err := models.NewBitCaskSmiResultsPersister(viper.GetString("USER_DATA_FOLDER"))
 	if err != nil {
-		logrus.Fatal(err)
+		log.Error(err)
 	}
 	defer smiResultPersister.CloseResultPersister()
 
 	testConfigPersister, err := models.NewBitCaskTestProfilesPersister(viper.GetString("USER_DATA_FOLDER"))
 	if err != nil {
-		logrus.Fatal(err)
+		log.Error(err)
 	}
 	defer testConfigPersister.CloseTestConfigsPersister()
 
@@ -149,7 +146,7 @@ func main() {
 		Logger:   log,
 	})
 	if err != nil {
-		logrus.Fatal(err)
+		log.Error(err)
 	}
 
 	kubeclient := mesherykube.Client{}
@@ -167,7 +164,7 @@ func main() {
 		models.MesheryApplication{},
 	)
 	if err != nil {
-		logrus.Fatal(err)
+		log.Error(err)
 	}
 
 	lProv := &models.DefaultLocalProvider{
@@ -188,7 +185,7 @@ func main() {
 
 	cPreferencePersister, err := models.NewBitCaskPreferencePersister(viper.GetString("USER_DATA_FOLDER"))
 	if err != nil {
-		logrus.Fatal(err)
+		log.Error(err)
 	}
 	defer preferencePersister.ClosePersister()
 
@@ -196,7 +193,7 @@ func main() {
 	for _, providerurl := range RemoteProviderURLs {
 		parsedURL, err := url.Parse(providerurl)
 		if err != nil {
-			logrus.Error(providerurl, "is invalid url skipping provider")
+			log.Debug(providerurl, "is invalid url skipping provider")
 			continue
 		}
 		cp := &models.RemoteProvider{
@@ -257,11 +254,11 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 
 	go func() {
-		logrus.Infof("Starting Server listening on :%d", port)
+		log.Info("Starting Server listening on: " + string(port))
 		if err := r.Run(); err != nil {
-			logrus.Fatalf("ListenAndServe Error: %v", err)
+			log.Error(err)
 		}
 	}()
 	<-c
-	logrus.Info("Shutting down Meshery")
+	log.Info("Shutting down Meshery")
 }

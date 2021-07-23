@@ -10,8 +10,6 @@ import (
 	"strings"
 
 	"github.com/layer5io/meshery/models"
-
-	"github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -80,7 +78,7 @@ func (h *Handler) GrafanaConfigHandler(w http.ResponseWriter, req *http.Request,
 			http.Error(w, ErrGrafanaScan(err).Error(), http.StatusInternalServerError)
 			return
 		}
-		logrus.Debugf("connection to grafana @ %s succeeded", grafanaURL)
+		h.log.Debug("connection to grafana @ %s succeeded", grafanaURL)
 	} else if req.Method == http.MethodDelete {
 		prefObj.Grafana = nil
 	}
